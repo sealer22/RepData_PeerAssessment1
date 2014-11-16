@@ -1,13 +1,16 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
-```{r echo = TRUE}
+
+```r
 library(knitr)
+```
+
+```
+## Warning: package 'knitr' was built under R version 3.1.2
+```
+
+```r
 library(ggplot2)
 #load the knitr library
 
@@ -17,21 +20,42 @@ activity <- read.csv("activity.csv")
 
 ## What is mean total number of steps taken per day?
 
-```{r echo = TRUE}
+
+```r
 step <- tapply(activity[,1], activity[,2], sum, na.rm=TRUE)
 #calculate the total steps based on each date
 
 qplot(step, xlab='Total steps', ylab='Frequency', binwidth = 1000)
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 #draw a diagram
 
 mean(step, na.rm=TRUE)
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median(step, na.rm=TRUE)
+```
+
+```
+## [1] 10395
+```
+
+```r
 #the mean and the median of the total steps taken per day
 ```
 
 ## What is the average daily activity pattern?
 
-```{r echo = TRUE}
+
+```r
 aggdata <- aggregate(x=list(activity[,1]), by=list(activity[,3]), FUN=mean, na.rm=TRUE)
 #aggregrate the steps based on intevals
 #reference of aggregrate(): http://www.statmethods.net/management/aggregate.html
@@ -40,9 +64,22 @@ colnames(aggdata) <- c("inteval", "step")
 #assign column names
 
 ggplot(aggdata, aes(x=aggdata[,1], y=aggdata[,2])) + geom_line() + xlab("Interval(5 mins)") + ylab("Average step")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 #draw a diagram
 
 aggdata[which.max(aggdata[,2]),]
+```
+
+```
+##     inteval     step
+## 104     835 206.1698
+```
+
+```r
 #find the interval with maximum number of steps
 ```
 
@@ -52,11 +89,19 @@ The interval with maximum number of steps is 835.
 
 In order to change the NAs with some value, I decide to borrow the steps of 5 mins intervals from the previous question, and fill the NAs with value based on the relative interval.
 
-```{r echo = TRUE}
+
+```r
 nas <- is.na(activity[,1])
 #mark all rows with NAs
 
 sum(nas)
+```
+
+```
+## [1] 2304
+```
+
+```r
 #calculate the sum of NAs
 
 activity2 <- activity
@@ -75,7 +120,21 @@ step2 <- tapply(activity2[,1], activity2[,2], sum, na.rm=TRUE)
 #calculate the total steps based on each date
 
 mean(step2)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(step2)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 #the mean and the median of the total steps taken per day
 ```
 
@@ -85,17 +144,18 @@ The value of mean and median are both higher because the NAs are replaced with s
 
 In this part I created a function "is.weekend" to verify if a date belong to weekend or not. 
 
-Please note that in the function I use two strings "¬P´Á¤é", "¬P´Á¤»", which can be refered to Sunday and Saturday in English. This is because the default language of my system is Chinese, and I'm too tired to adjust the setting...
+Please note that in the function I use two strings "æ˜ŸæœŸæ—¥", "æ˜ŸæœŸå…­", which can be refered to Sunday and Saturday in English. This is because the default language of my system is Chinese, and I'm too tired to adjust the setting...
 
-```{r echo = TRUE}
+
+```r
 is.weekend <- function(date) {
-  if (weekdays(date) %in% c("¬P´Á¤é", "¬P´Á¤»"))
+  if (weekdays(date) %in% c("æ˜ŸæœŸæ—¥", "æ˜ŸæœŸå…­"))
     return("weekend")
   else
     return("weekday")
 }
 #A function to verify weather the target date is weekend
-#the chinese words"¬P´Á¤é" and "¬P´Á¤»" means Sunday and Saturday
+#the chinese words"æ˜ŸæœŸæ—¥" and "æ˜ŸæœŸå…­" means Sunday and Saturday
 #because my R default language is chinese so it need to be setup like this
 
 activity2[,2] <-as.Date(activity2[,2], format = "%Y-%m-%d")
@@ -109,5 +169,10 @@ aggdata <- aggregate(steps ~ interval + isweekend, data=activity2, mean)
 
 ggplot(aggdata, aes(interval, steps)) + geom_line() + facet_grid(isweekend ~ .) +
   xlab("Interval") + ylab("Step")
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+```r
 #draw diagrams of weekend and weekday
 ```
